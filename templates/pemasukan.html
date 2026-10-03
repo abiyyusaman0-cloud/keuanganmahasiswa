@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Pemasukan - Keuangan Mahasiswa{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Pemasukan</h1>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm border-top border-4 border-success">
+            <div class="card-header bg-white fw-semibold">Tambah Pemasukan</div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('pemasukan') }}">
+                    <div class="mb-3">
+                        <label for="bulan" class="form-label">Bulan</label>
+                        <input type="month" class="form-control" id="bulan" name="bulan"
+                               value="{{ bulan_default }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nominal" class="form-label">Nominal (Rp)</label>
+                        <input type="number" class="form-control" id="nominal" name="nominal"
+                               min="1" step="any" inputmode="numeric"
+                               placeholder="contoh: 3000000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keterangan" class="form-label">Keterangan</label>
+                        <input type="text" class="form-control" id="keterangan" name="keterangan"
+                               maxlength="200" placeholder="contoh: Uang bulanan dari orang tua" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Simpan Pemasukan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-semibold">Riwayat Pemasukan</div>
+            <div class="card-body p-0">
+                {% if riwayat %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Bulan</th>
+                                <th>Keterangan</th>
+                                <th class="text-end">Nominal</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in riwayat %}
+                            <tr>
+                                <td class="text-nowrap">{{ item.bulan | bulan_id }}</td>
+                                <td>{{ item.keterangan }}</td>
+                                <td class="text-end text-success fw-semibold text-nowrap">{{ item.nominal | rupiah }}</td>
+                                <td class="text-center">
+                                    <form method="post"
+                                          action="{{ url_for('hapus_pemasukan', id=item.id) }}"
+                                          onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state text-center text-muted py-5">
+                    <div class="display-6 mb-2">💵</div>
+                    <p class="mb-0">Belum ada data pemasukan. Tambahkan lewat form di samping.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

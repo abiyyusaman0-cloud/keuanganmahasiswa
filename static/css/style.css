@@ -1,0 +1,61 @@
+/* Keuangan Mahasiswa - gaya tambahan di atas Bootstrap 5 */
+
+body {
+    background-color: #f4f6fb;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.card {
+    border: 0;
+    border-radius: 0.75rem;
+}
+
+.card-header {
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+
+.card-ringkasan {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-ringkasan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.table > :not(caption) > * > * {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.empty-state {
+    min-height: 160px;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+/* Tampilan nyaman di smartphone */
+@media (max-width: 575.98px) {
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
+    .btn {
+        min-height: 40px;
+    }
+
+    .fs-3 {
+        font-size: 1.5rem !important;
+    }
+}

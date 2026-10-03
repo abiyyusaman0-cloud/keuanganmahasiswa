@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Pengeluaran - Keuangan Mahasiswa{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Pengeluaran</h1>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm border-top border-4 border-danger">
+            <div class="card-header bg-white fw-semibold">Tambah Pengeluaran</div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('pengeluaran') }}">
+                    <div class="mb-3">
+                        <label for="tanggal" class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="tanggal" name="tanggal"
+                               value="{{ tanggal_default }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nominal" class="form-label">Nominal (Rp)</label>
+                        <input type="number" class="form-control" id="nominal" name="nominal"
+                               min="1" step="any" inputmode="numeric"
+                               placeholder="contoh: 25000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <input type="text" class="form-control" id="deskripsi" name="deskripsi"
+                               maxlength="200" placeholder="contoh: Makan siang" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kategori" class="form-label">Kategori</label>
+                        <select class="form-select" id="kategori" name="kategori" required>
+                            <option value="" disabled selected>Pilih kategori</option>
+                            {% for k in kategori_list %}
+                            <option value="{{ k }}">{{ k }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sumber_dana" class="form-label">Sumber Dana</label>
+                        <select class="form-select" id="sumber_dana" name="sumber_dana" required>
+                            <option value="" disabled selected>Pilih sumber dana</option>
+                            {% for s in sumber_dana_list %}
+                            <option value="{{ s }}">{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Simpan Pengeluaran</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-white fw-semibold">Filter Pengeluaran</div>
+            <div class="card-body">
+                <form method="get" action="{{ url_for('pengeluaran') }}" class="row g-2 align-items-end">
+                    <div class="col-12 col-md-4">
+                        <label for="f_bulan" class="form-label small mb-1">Bulan</label>
+                        <input type="month" class="form-control" id="f_bulan" name="bulan" value="{{ f_bulan }}">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="f_kategori" class="form-label small mb-1">Kategori</label>
+                        <select class="form-select" id="f_kategori" name="kategori">
+                            <option value="">Semua</option>
+                            {% for k in kategori_list %}
+                            <option value="{{ k }}" {% if k == f_kategori %}selected{% endif %}>{{ k }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="f_sumber" class="form-label small mb-1">Sumber Dana</label>
+                        <select class="form-select" id="f_sumber" name="sumber_dana">
+                            <option value="">Semua</option>
+                            {% for s in sumber_dana_list %}
+                            <option value="{{ s }}" {% if s == f_sumber %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filter</button>
+                        {% if filter_aktif %}
+                        <a href="{{ url_for('pengeluaran') }}" class="btn btn-outline-secondary" title="Reset filter">Reset</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="fw-semibold">Riwayat Pengeluaran</span>
+                <span class="small text-muted">
+                    {{ riwayat | length }} transaksi &middot;
+                    Total: <strong class="text-danger">{{ total_filter | rupiah }}</strong>
+                </span>
+            </div>
+            <div class="card-body p-0">
+                {% if riwayat %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Deskripsi</th>
+                                <th>Kategori</th>
+                                <th>Sumber Dana</th>
+                                <th class="text-end">Nominal</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in riwayat %}
+                            <tr>
+                                <td class="text-nowrap">{{ item.tanggal | tanggal_id }}</td>
+                                <td>{{ item.deskripsi }}</td>
+                                <td><span class="badge bg-{{ kategori_warna.get(item.kategori, 'secondary') }}">{{ item.kategori }}</span></td>
+                                <td><span class="badge bg-{{ sumber_dana_warna.get(item.sumber_dana, 'secondary') }}">{{ item.sumber_dana }}</span></td>
+                                <td class="text-end text-danger fw-semibold text-nowrap">{{ item.nominal | rupiah }}</td>
+                                <td class="text-center">
+                                    <form method="post"
+                                          action="{{ url_for('hapus_pengeluaran', id=item.id) }}"
+                                          onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state text-center text-muted py-5">
+                    <div class="display-6 mb-2">🧾</div>
+                    {% if filter_aktif %}
+                    <p class="mb-0">Tidak ada transaksi yang cocok dengan filter.</p>
+                    {% else %}
+                    <p class="mb-0">Belum ada data pengeluaran. Tambahkan lewat form di samping.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
